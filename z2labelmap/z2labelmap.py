@@ -8,15 +8,18 @@
 #                        dev@babyMRI.org
 #
 
-import os
 import  os
-from    os          import listdir, sep
-from    os.path     import abspath, basename, isdir
+from    os          import  listdir, sep
+from    os.path     import  abspath, basename, isdir
+import  numpy       as      np
+import  pandas      as      pd
+import  csv
 import  shutil
 import  pudb
 import  sys
 import  time
 import  random
+import  copy
 
 # import the Chris app superclass
 from chrisapp.base import ChrisApp
@@ -52,7 +55,7 @@ class Z2labelmap(ChrisApp):
     # called with the --saveoutputmeta flag
     OUTPUT_META_DICT = {}
  
-    def structList_define(self):
+    def a2009sStructList_define(self):
         """
         The list of structures in the a2009s cortical parcellation
         """
@@ -132,13 +135,94 @@ class Z2labelmap(ChrisApp):
             'S_temporal_sup',
             'S_temporal_transverse'
         ]
+        return self.l_a2009s
 
-    def randomZscoreFile_generate(self):
+    def zScoreFile_read(self, astr_parcellation):
+        """
+        Read the z-score file in the input directory.
+        """
+        b_status    = False
+
+        # pudb.set_trace()
+        dframe      = pd.read_csv(
+                        '%s/%s' % (self.options.inputdir, self.options.zFile),
+                        header = None
+                    )
+
+        self.d_parcellation[astr_parcellation]['zScore']['lh'] = dframe.ix[:,1].tolist()
+        self.d_parcellation[astr_parcellation]['zScore']['rh'] = dframe.ix[:,2].tolist()
+
+        b_status    = True
+        return {
+            'status':   b_status
+        }
+
+    def zScore_processStats(self, astr_parcellation):
+        """
+        Process some quick stats on the z-score for the <astr_parcellation>
+        """
+        b_status    = False
+
+        if astr_parcellation in self.d_parcellation.keys():
+            for str_hemi in ['lh', 'rh']:
+                for str_stat in ['min', 'max']:
+                    str_stats   = '%sStats' % str_hemi
+                    obj         = np.array(self.d_parcellation[astr_parcellation]['zScore'][str_hemi])
+                    func        = getattr(obj, str_stat)
+                    self.d_parcellation[astr_parcellation]['zScore'][str_stats][str_stat] = \
+                        func()
+                    b_status    = True
+
+        return {
+            'status':b_status
+        }
+
+    def randomZscoreFile_generate(self, astr_parcellation):
         """
         Generate a "random" z-score file, based on the range given in the
-        --random <range> command line flag.
+        --random  --posRange and --negRange  command line flags. 
+        
+        This file has three columns,
+
+        <structName> <leftHemisphere-z-score> <rightHemisphere-z-score>
+
+        Save file to both input and output directories.
+
         """
-        sampleLen   = len(self.l_a2009s)
+
+        def file_write(f):
+            writer  = csv.writer(f)
+            for row in self.rows_zscore:
+                writer.writerow(row) 
+
+        l_parc  = self.d_parcellation[astr_parcellation]['structureNames']
+
+        self.d_parcellation[astr_parcellation]['zScore']['lh'] =   np.random.uniform(  
+                                            low     = self.options.f_negRange, 
+                                            high    = self.options.f_posRange, 
+                                            size    = (len(l_parc,))
+                                ).tolist()
+        self.d_parcellation[astr_parcellation]['zScore']['rh'] =   np.random.uniform(  
+                                            low     = self.options.f_negRange, 
+                                            high    = self.options.f_posRange, 
+                                            size    = (len(l_parc,))
+                                ).tolist()
+
+        self.rows_zscore = zip( 
+                        self.d_parcellation[astr_parcellation]['structureNames'], 
+                        self.d_parcellation[astr_parcellation]['zScore']['lh'],
+                        self.d_parcellation[astr_parcellation]['zScore']['rh']
+                        )
+        with open('%s/%s' % (self.options.inputdir, self.options.zFile), 
+                    "w", newline = '') as f:
+            file_write(f)
+        shutil.copyfile(
+            '%s/%s' % (self.options.inputdir,   self.options.zFile),
+            '%s/%s' % (self.options.outputdir,  self.options.zFile)
+        )
+        return {
+            'status':   True
+        }
 
     def define_parameters(self):
         """
@@ -163,6 +247,12 @@ class Z2labelmap(ChrisApp):
                             dest        = 'f_negRange',
                             optional    = True,
                             default     = -1.0)
+        self.add_argument("-z", "--zFile",
+                            help        = "z-score file to read rel to input directory",
+                            type        = str,
+                            dest        = 'zFile',
+                            optional    = True,
+                            default     = 'zfile.txt')
         self.add_argument('--random',
                             help        = 'if specified, generate a z-score file',
                             type        = bool,
@@ -170,6 +260,7 @@ class Z2labelmap(ChrisApp):
                             action      = 'store_true',
                             optional    = True,
                             default     = False)
+
         self.add_argument('--version',
                             help        = 'if specified, print version number',
                             type        = bool,
@@ -182,10 +273,49 @@ class Z2labelmap(ChrisApp):
         """
         Define the code to be run by this plugin app.
         """
+
+        self.options        = options
+        self.d_core         = {
+            'structureNames':   [],
+            'zScore': {
+                'lh':       [],
+                'lhStats':  {'min': 0.0, 'max': 0.0},
+                'rh':       [],
+                'rhStats':  {'min': 0.0, 'max': 0.0}
+            },
+            'zScoreFile':   "",
+            'labelMapFile': ""
+        }
+        self.d_parcellation = {
+            'a2009s':   copy.deepcopy(self.d_core),
+            'DKatlas':  copy.deepcopy(self.d_core),
+            'default':  copy.deepcopy(self.d_core)
+        }
+
+
+        # pudb.set_trace()
         if options.b_version:
             print('Plugin Version: %s' % Z2labelmap.VERSION)
             sys.exit(0)
 
+        self.d_parcellation['a2009s']['structureNames'] = self.a2009sStructList_define()
+        self.d_parcellation['a2009s']['zScoreFile']   = '%s/%s' % \
+                (self.options.inputdir, self.options.zFile)
+        self.d_parcellation['a2009s']['labelMapFile']   = '%s/%s' % \
+                (self.options.outputdir, 'aparc.annot.a2009s.ctab')
+
+        b_zFileProcessed        = False
+
+        if options.b_random:
+            self.randomZscoreFile_generate('a2009s')
+            b_zFileProcessed    = True
+        else:
+            if os.path.isfile('%s/%s' % 
+                    (self.options.inputdir, self.options.zFile)):
+                b_zFileProcessed = self.zScoreFile_read('a2009s')['status']
+        
+        if b_zFileProcessed:
+            self.zScore_processStats('a2009s')
 
 
 # ENTRYPOINT
