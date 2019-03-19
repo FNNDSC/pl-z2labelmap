@@ -241,12 +241,24 @@ class Z2labelmap(ChrisApp):
                             dest        = 'f_posRange',
                             optional    = True,
                             default     = 1.0)
+        self.add_argument("-P", "--posColor",
+                            help        = "Some combination of 'R', 'G', B' for positive heat",
+                            type        = str,
+                            dest        = 'posColor',
+                            optional    = True,
+                            default     = 'R')
         self.add_argument("-n", "--negRange",
                             help        = "negative range for max deviation",
                             type        = float,
                             dest        = 'f_negRange',
                             optional    = True,
                             default     = -1.0)
+        self.add_argument("-N", "--negColor",
+                            help        = "Some combination of 'R', 'G', B' for negative heat",
+                            type        = str,
+                            dest        = 'negColor',
+                            optional    = True,
+                            default     = 'B')
         self.add_argument("-z", "--zFile",
                             help        = "z-score file to read rel to input directory",
                             type        = str,
