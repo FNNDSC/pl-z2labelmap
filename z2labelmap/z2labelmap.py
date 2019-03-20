@@ -149,8 +149,8 @@ class Z2labelmap(ChrisApp):
                         header = None
                     )
 
-        self.d_parcellation[astr_parcellation]['zScore']['lh'] = dframe.ix[:,1].tolist()
-        self.d_parcellation[astr_parcellation]['zScore']['rh'] = dframe.ix[:,2].tolist()
+        self.d_parcellation[astr_parcellation]['lh']['zScore'] = dframe.ix[:,1].tolist()
+        self.d_parcellation[astr_parcellation]['rh']['zScore'] = dframe.ix[:,2].tolist()
 
         b_status    = True
         return {
@@ -159,23 +159,56 @@ class Z2labelmap(ChrisApp):
 
     def zScore_processStats(self, astr_parcellation):
         """
-        Process some quick stats on the z-score for the <astr_parcellation>
+        Process some quick stats on the z-score for the <astr_parcellation>:
+        basically just tag/flag the min/max in the z-score vector for downstream
+        processing.
         """
         b_status    = False
 
         if astr_parcellation in self.d_parcellation.keys():
             for str_hemi in ['lh', 'rh']:
                 for str_stat in ['min', 'max']:
-                    str_stats   = '%sStats' % str_hemi
-                    obj         = np.array(self.d_parcellation[astr_parcellation]['zScore'][str_hemi])
+                    obj         = np.array(self.d_parcellation[astr_parcellation][str_hemi]['zScore'])
                     func        = getattr(obj, str_stat)
-                    self.d_parcellation[astr_parcellation]['zScore'][str_stats][str_stat] = \
+                    self.d_parcellation[astr_parcellation][str_hemi]['stats'][str_stat] = \
                         func()
                     b_status    = True
 
         return {
             'status':b_status
         }
+
+    def zScore_filterPosNeg(self, astr_parcellation):
+        """
+        Filter the original z-score vector into a strictly positive
+        and negative vectors and normalize (either to natural range or
+        specified range)
+        """
+        b_status = False
+
+        if astr_parcellation in self.d_parcellation.keys():
+            for str_hemi in ['lh', 'rh']:
+                for str_sign in ['posNorm', 'negNorm']:
+                    self.d_parcellation[astr_parcellation][str_hemi][str_sign] = \
+                        self.d_parcellation[astr_parcellation][str_hemi]['zScore'].copy()
+                    if self.options.f_maxRange != 0.0:
+                        f_range = self.options.f_maxRange
+                    else:
+                        f_range = self.d_parcellation[astr_parcellation][str_hemi]['stats']['max'] \
+                            if str_sign == 'posNorm' else \
+                                 -self.d_parcellation[astr_parcellation][str_hemi]['stats']['min']
+                    if str_sign == 'posNorm':    
+                        self.d_parcellation[astr_parcellation][str_hemi][str_sign] = \
+                            [x/f_range if x > 0 else 0 for x in self.d_parcellation[astr_parcellation][str_hemi][str_sign]]
+                    else:
+                        self.d_parcellation[astr_parcellation][str_hemi][str_sign] = \
+                            [-x/f_range if x < 0 else 0 for x in self.d_parcellation[astr_parcellation][str_hemi][str_sign]]
+                    b_status    = True
+
+        return {
+            'status':b_status
+        }
+
 
     def randomZscoreFile_generate(self, astr_parcellation):
         """
@@ -197,12 +230,12 @@ class Z2labelmap(ChrisApp):
 
         l_parc  = self.d_parcellation[astr_parcellation]['structureNames']
 
-        self.d_parcellation[astr_parcellation]['zScore']['lh'] =   np.random.uniform(  
+        self.d_parcellation[astr_parcellation]['lh']['zScore'] =   np.random.uniform(  
                                             low     = self.options.f_negRange, 
                                             high    = self.options.f_posRange, 
                                             size    = (len(l_parc,))
                                 ).tolist()
-        self.d_parcellation[astr_parcellation]['zScore']['rh'] =   np.random.uniform(  
+        self.d_parcellation[astr_parcellation]['rh']['zScore'] =   np.random.uniform(  
                                             low     = self.options.f_negRange, 
                                             high    = self.options.f_posRange, 
                                             size    = (len(l_parc,))
@@ -210,8 +243,8 @@ class Z2labelmap(ChrisApp):
 
         self.rows_zscore = zip( 
                         self.d_parcellation[astr_parcellation]['structureNames'], 
-                        self.d_parcellation[astr_parcellation]['zScore']['lh'],
-                        self.d_parcellation[astr_parcellation]['zScore']['rh']
+                        self.d_parcellation[astr_parcellation]['lh']['zScore'],
+                        self.d_parcellation[astr_parcellation]['rh']['zScore']
                         )
         with open('%s/%s' % (self.options.inputdir, self.options.zFile), 
                     "w", newline = '') as f:
@@ -236,7 +269,7 @@ class Z2labelmap(ChrisApp):
                             optional    = True,
                             default     = "0")
         self.add_argument("-p", "--posRange",
-                            help        = "positive range for max deviation",
+                            help        = "positive range for random max deviation generation",
                             type        = float,
                             dest        = 'f_posRange',
                             optional    = True,
@@ -248,7 +281,7 @@ class Z2labelmap(ChrisApp):
                             optional    = True,
                             default     = 'R')
         self.add_argument("-n", "--negRange",
-                            help        = "negative range for max deviation",
+                            help        = "negative range for random max deviation generation",
                             type        = float,
                             dest        = 'f_negRange',
                             optional    = True,
@@ -259,6 +292,12 @@ class Z2labelmap(ChrisApp):
                             dest        = 'negColor',
                             optional    = True,
                             default     = 'B')
+        self.add_argument("-m", "--maxRange",
+                            help        = "max range for normalization",
+                            type        = float,
+                            dest        = 'f_maxRange',
+                            optional    = True,
+                            default     = 0.0)
         self.add_argument("-z", "--zFile",
                             help        = "z-score file to read rel to input directory",
                             type        = str,
@@ -287,14 +326,17 @@ class Z2labelmap(ChrisApp):
         """
 
         self.options        = options
+        self.d_hemiStats    = {
+            'zScore':       [],
+            'stats':        {'min': 0.0, 'max': 0.0},
+            'posNorm':      [],
+            'negNorm':      []
+        }
         self.d_core         = {
             'structureNames':   [],
-            'zScore': {
-                'lh':       [],
-                'lhStats':  {'min': 0.0, 'max': 0.0},
-                'rh':       [],
-                'rhStats':  {'min': 0.0, 'max': 0.0}
-            },
+            'lh':           copy.deepcopy(self.d_hemiStats),
+            'rh':           copy.deepcopy(self.d_hemiStats),
+            'f_maxRange':   self.options.f_maxRange,
             'zScoreFile':   "",
             'labelMapFile': ""
         }
@@ -303,7 +345,6 @@ class Z2labelmap(ChrisApp):
             'DKatlas':  copy.deepcopy(self.d_core),
             'default':  copy.deepcopy(self.d_core)
         }
-
 
         # pudb.set_trace()
         if options.b_version:
@@ -328,6 +369,7 @@ class Z2labelmap(ChrisApp):
         
         if b_zFileProcessed:
             self.zScore_processStats('a2009s')
+            self.zScore_filterPosNeg('a2009s')
 
 
 # ENTRYPOINT
