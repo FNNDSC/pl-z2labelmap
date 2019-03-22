@@ -32,22 +32,130 @@ Gstr_synopsis = """
 
     SYNOPSIS
 
+        python z2labelmap.py                                            \\
+            [-v <level>] [--verbosity <level>]                          \\
+            [--random]                                                  \\
+            [-p <f_posRange>] [--posRange <f_posRange>]                 \\
+            [-n <f_negRange>] [--negRange <f_negRange>]                 \\
+            [-P <'RGB'>] [--posColor <'RGB'>]                           \\
+            [-N  <'RGB'> [--negColor <'RGB'>]                           \\
+            [-s <f_scaleRange>] [--scaleRange <f_scaleRange>]           \\
+            [-l <f_lowerFilter>] [--lowerFilter <f_lowerFilter>]        \\
+            [-u <f_upperFilter>] [--upperFilter <f_upperFilter>]        \\
+            [-z <zFile>] [--zFile <zFile>]                              \\
+            [--version]                                                 \\
+            [--man]                                                     \\
+            [--meta]                                                    \\
+            <inputDir>                                                  \\
+            <outputDir> 
+
     BRIEF EXAMPLE
 
-        * To create a sample/random z-score file and analyze this file:
+        * To create a sample/random z-score file and analyze this 
+          created file:
 
             mkdir in out
-            python z2labelmap.py --random --posRange 3.0 --negRange -3.0 in out
+            python z2labelmap.py    --random                            \\
+                                    --posRange 3.0 --negRange -3.0      \\
+                                    in out
 
-        * To analyze a file already located at 'in/zfile.csv':
+          In this example, z-scores range between 0.0 and (+/-) 3.0.
 
-            python z2labelmap.py --maxRange 4.0 --negColor B --posColor R in out
+        * To analyze a file already located at 'in/zfile.csv', apply a 
+          scaleRange and also filter out the lower 80\% of z-scores:
 
-
+            python z2labelmap.py    --scaleRange 2.0 --lowerFilter 0.8  \\
+                                    --negColor B --posColor R           \\
+                                    in out
 
     DESCRIPTION
 
+        `zlabelmap.py' generates FreeSurfer labelmaps from z-score vector
+        files. Essentially the script consumes an input text vector file
+        of 
+
+            <str_structureName> <float_lh_zScore> <float_rh_zScore>
+
+        and creates a FreeSurfer labelmap where <str_structureName> colors 
+        correspond to the z-score (normalized between 0 and 255).
+
+        Currently, only the 'aparc.a2009s' FreeSurfer segmentation is fully
+        supported, however future parcellation support is planned.
+
+        Negative z-scores and positive z-scores are treated in the same manner
+        but have sign-specific color specifications.
+
+        Positive and negative z-Scores can be assigned some combination of the
+        chars 'RGB' to indicate which color dimension will reflect the z-Score.
+        For example, a 
+            
+                --posColor R --negColor RG
+
+        will assign positive z-scores shades of 'red' and negative z-scores shades
+        of 'yellow' (Red + Green = Yellow).
+
     ARGS
+
+        <inputDir>
+        Required argument.
+        Input directory for plugin.
+
+        <outputDir>
+        Required argument.
+        Output directory for plugin.
+
+        [-v <level>] [--verbosity <level>]
+        Verbosity level for app. Not used currently.
+
+        [--random]
+        If specified, generate a z-score file based on <posRange> and <negRange>.
+
+        [-p <f_posRange>] [--posRange <f_posRange>]
+        Positive range for random max deviation generation.
+
+        [-n <f_negRange>] [--negRange <f_negRange>]
+        Negative range for random max deviation generation.
+
+        [-P <'RGB'>] [--posColor <'RGB'>]
+        Some combination of 'R', 'G', B' for positive heat.
+
+        [-N  <'RGB'> [--negColor <'RGB'>]
+        Some combination of 'R', 'G', B' for negative heat.
+
+        [-s <f_scaleRange>] [--scaleRange <f_scaleRange>]
+        Scale range for normalization. This has the effect of controlling the
+        brightness of the map. For example, if this 1.5 the effect
+        is increase the apparent range by 50% which darkens all colors values.
+
+        [-l <f_lowerFilter>] [--lowerFilter <f_lowerFilter>]
+        Filter all z-scores below (normalized) <lowerFilter> to 0.0.
+
+        [-u <f_upperFilter>] [--upperFilter <f_upperFilter>]
+        Filter all z-scores above (normalized) <upperFilter> to 0.0.
+
+        [-z <zFile>] [--zFile <zFile>]
+        z-score file to read (relative to input directory). Defaults to 'zfile.csv'.
+
+        [--version]
+        If specified, print version number. 
+        
+        [--man]
+        If specified, print (this) man page.
+
+        [--meta]
+        If specified, print plugin meta data.
+
+    EXAMPLE
+
+        * Assuming a file called 'zfile.csv' in the <inputDirectory>
+          that ranges in z-score between 0.0 and 3.0, use the --scaleRange
+          to reduce the apparent brightness of the map by 50 percent and 
+          also remove the lower 80 percent of zscores (this has the effect 
+          of only showing the brightest 20 percent of zscores). 
+
+        python z2labelmap.py    --scaleRange 2.0 --lowerFilter 0.8    \\
+                                --negColor B --posColor R           \\
+                                in out
 
 
 """
@@ -56,26 +164,26 @@ class Z2labelmap(ChrisApp):
     """
     Convert a file of per-structure z-scores to a FreeSurfer labelmap..
     """
-    AUTHORS         = 'FNNDSC (dev@babyMRI.org)'
-    SELFPATH        = os.path.dirname(os.path.abspath(__file__))
-    SELFEXEC        = os.path.basename(__file__)
-    EXECSHELL       = 'python3'
-    TITLE           = 'z-score to FreeSurfer label map'
-    CATEGORY        = 'FreeSurfer'
-    TYPE            = 'ds'
-    DESCRIPTION     = 'Convert a file of per-structure z-scores to a FreeSurfer labelmap.'
-    DOCUMENTATION   = 'http://wiki'
-    VERSION         = '0.1'
-    ICON            = '' # url of an icon image
-    LICENSE         = 'Opensource (MIT)'
-    MAX_NUMBER_OF_WORKERS = 1  # Override with integer value
-    MIN_NUMBER_OF_WORKERS = 1  # Override with integer value
-    MAX_CPU_LIMIT         = '' # Override with millicore value as string, e.g. '2000m'
-    MIN_CPU_LIMIT         = '' # Override with millicore value as string, e.g. '2000m'
-    MAX_MEMORY_LIMIT      = '' # Override with string, e.g. '1Gi', '2000Mi'
-    MIN_MEMORY_LIMIT      = '' # Override with string, e.g. '1Gi', '2000Mi'
-    MIN_GPU_LIMIT         = 0  # Override with the minimum number of GPUs, as an integer, for your plugin
-    MAX_GPU_LIMIT         = 0  # Override with the maximum number of GPUs, as an integer, for your plugin
+    AUTHORS                 = 'FNNDSC (dev@babyMRI.org)'
+    SELFPATH                = os.path.dirname(os.path.abspath(__file__))
+    SELFEXEC                = os.path.basename(__file__)
+    EXECSHELL               = 'python3'
+    TITLE                   = 'z-score to FreeSurfer label map'
+    CATEGORY                = 'FreeSurfer'
+    TYPE                    = 'ds'
+    DESCRIPTION             = 'Convert a file of per-structure z-scores to a FreeSurfer labelmap.'
+    DOCUMENTATION           = 'http://wiki'
+    VERSION                 = '1.0'
+    ICON                    = '' # url of an icon image
+    LICENSE                 = 'Opensource (MIT)'
+    MAX_NUMBER_OF_WORKERS   = 1  # Override with integer value
+    MIN_NUMBER_OF_WORKERS   = 1  # Override with integer value
+    MAX_CPU_LIMIT           = '' # Override with millicore value as string, e.g. '2000m'
+    MIN_CPU_LIMIT           = '' # Override with millicore value as string, e.g. '2000m'
+    MAX_MEMORY_LIMIT        = '' # Override with string, e.g. '1Gi', '2000Mi'
+    MIN_MEMORY_LIMIT        = '' # Override with string, e.g. '1Gi', '2000Mi'
+    MIN_GPU_LIMIT           = 0  # Override with the minimum number of GPUs, as an integer, for your plugin
+    MAX_GPU_LIMIT           = 0  # Override with the maximum number of GPUs, as an integer, for your plugin
 
     # Fill out this with key-value output descriptive info (such as an output file path
     # relative to the output dir) that you want to save to the output meta file when
@@ -86,6 +194,7 @@ class Z2labelmap(ChrisApp):
         """
         The list of structures in the a2009s cortical parcellation
         """
+
         self.l_a2009s = [
             'G_and_S_frontomargin',
             'G_and_S_occipital_inf',
@@ -162,7 +271,8 @@ class Z2labelmap(ChrisApp):
             'S_temporal_sup',
             'S_temporal_transverse'
         ]
-        maxlen  = len(max(self.l_a2009s, key = len))
+        maxlen          = len(max(self.l_a2009s, key = len))
+        # Right pad the structure names with spaces to set all names to same length.
         self.l_a2009s   = [x + (' ' * (maxlen - len(x))) for x in self.l_a2009s]
         return self.l_a2009s
 
@@ -212,6 +322,8 @@ class Z2labelmap(ChrisApp):
         Filter the original z-score vector into a strictly positive
         and negative vectors and normalize (either to natural range or
         specified range).
+
+        The filtered vectors are positive.
         """
         b_status = False
 
@@ -220,22 +332,52 @@ class Z2labelmap(ChrisApp):
                 for str_sign in ['posNorm', 'negNorm']:
                     self.d_parcellation[astr_parcellation][str_hemi][str_sign] = \
                         self.d_parcellation[astr_parcellation][str_hemi]['zScore'].copy()
-                    if self.options.f_maxRange != 0.0:
-                        f_range = self.options.f_maxRange
-                    else:
-                        f_range = self.d_parcellation[astr_parcellation][str_hemi]['stats']['max'] \
-                            if str_sign == 'posNorm' else \
-                                 -self.d_parcellation[astr_parcellation][str_hemi]['stats']['min']
+                    # Find the range
+                    f_range = self.d_parcellation[astr_parcellation][str_hemi]['stats']['max'] \
+                        if str_sign == 'posNorm' else \
+                                -self.d_parcellation[astr_parcellation][str_hemi]['stats']['min']
+                    # Optional scale
+                    if self.options.f_scaleRange != 0.0:
+                        f_range = self.options.f_scaleRange * f_range
                     if str_sign == 'posNorm':    
                         self.d_parcellation[astr_parcellation][str_hemi][str_sign] = \
                             [x/f_range if x > 0 else 0 for x in self.d_parcellation[astr_parcellation][str_hemi][str_sign]]
                     else:
                         self.d_parcellation[astr_parcellation][str_hemi][str_sign] = \
                             [-x/f_range if x < 0 else 0 for x in self.d_parcellation[astr_parcellation][str_hemi][str_sign]]
+                    # Make sure that anything above 1.0 is set to 1.0
+                    self.d_parcellation[astr_parcellation][str_hemi][str_sign] = \
+                        [x if x <= 1.0 else 1.0 for x in self.d_parcellation[astr_parcellation][str_hemi][str_sign]]
                     b_status    = True
-
         return {
             'status':b_status
+        }
+
+    def zScore_bandwidthFilter(self, astr_parcellation):
+        """
+        Bandwidth filter the z-score vector.
+
+        Modify the 'daM_color' attribute of the corresponding dictionary core.
+        """
+        b_status = False
+
+        if astr_parcellation in self.d_parcellation.keys():
+            N           = len(self.d_parcellation[astr_parcellation]['structureNames'])
+            for str_hemi in ['lh', 'rh']:
+                for str_sign in ['pos', 'neg']:
+                    av_zscore               = np.array(self.d_parcellation[astr_parcellation][str_hemi]['%sNorm' % str_sign])
+                    av_zscore.shape         = (N, 1)
+                    if self.options.f_lowerFilter != -1.0:
+                        f_filter            = np.amax(av_zscore) * self.options.f_lowerFilter
+                        av_zscore           = np.where(av_zscore > f_filter, av_zscore, 0.0)
+                    if self.options.f_upperFilter != -1.0:
+                        f_filter            = np.amax(av_zscore) * self.options.f_upperFilter
+                        av_zscore           = np.where(av_zscore < f_filter, av_zscore, 0.0)
+                    b_status                = True
+                    self.d_parcellation[astr_parcellation][str_hemi]['%sNorm' % str_sign] =  av_zscore
+
+        return {
+            'status':   b_status
         }
 
     def zScore_labelFileRGBcalc(self, astr_parcellation):
@@ -253,8 +395,9 @@ class Z2labelmap(ChrisApp):
             for str_hemi in ['lh', 'rh']:
                 dav_color    = {}
                 for str_sign in ['pos', 'neg']:
-                    av_zscore               = np.array(self.d_parcellation[astr_parcellation][str_hemi]['%sNorm' % str_sign])
-                    av_zscore.shape         = (N, 1)
+                    # av_zscore               = np.array(self.d_parcellation[astr_parcellation][str_hemi]['%sNorm' % str_sign])
+                    # av_zscore.shape         = (N, 1)
+                    av_zscore               = self.d_parcellation[astr_parcellation][str_hemi]['%sNorm' % str_sign]
                     dav_color[str_sign]     = np.array([0, 0, 0])
                     b_status                = True
                     # First create the color "vector"
@@ -277,7 +420,6 @@ class Z2labelmap(ChrisApp):
         Make the RGB table
         """
         b_status = False
-        pudb.set_trace()
         if astr_parcellation in self.d_parcellation.keys():
             b_status        = True
             N               = len(self.d_parcellation[astr_parcellation]['structureNames'])
@@ -285,18 +427,17 @@ class Z2labelmap(ChrisApp):
             aM_fullbrain    = np.concatenate((daM_color['lh'], daM_color['rh'])).astype(int)
             l_lhStruct      = ['lh-%s' % x for x in self.d_parcellation[astr_parcellation]['structureNames']]
             l_rhStruct      = ['rh-%s' % x for x in self.d_parcellation[astr_parcellation]['structureNames']]
-            a_lhOffset      = np.zeros((N,1)) + 111000 
-            a_rhOffset      = np.zeros((N,1)) + 121000 
-            a_lhrhOffset    = np.concatenate((a_lhOffset, a_rhOffset))
+            a_lhOffset      = np.zeros((N,1)) + 11100
+            a_rhOffset      = np.zeros((N,1)) + 12100 
             l_allStructs    = l_lhStruct + l_rhStruct
-            a_count         = np.arange(1, 2*N+1) + a_lhrhOffset.transpose()
-            a_count         = a_count.transpose().astype(int)
+            a_lhCount       = np.arange(1, N+1) + a_lhOffset.transpose()
+            a_rhCount       = np.arange(1, N+1) + a_rhOffset.transpose()
+            a_count         = np.concatenate((a_lhCount.transpose().astype(int), a_rhCount.transpose().astype(int)))
             a_alpha         = np.zeros((2*N,1)).astype(int)
             astr_allStructs = np.array((l_allStructs))
             astr_allStructs.shape = (len(astr_allStructs), 1)
 
             a_allData       = np.concatenate((a_count, astr_allStructs, aM_fullbrain, a_alpha), axis = 1)
-            # a_allData       = np.concatenate((a_count.tolist(), astr_allStructs.tolist(), aM_fullbrain.tolist(), a_alpha.tolist()), axis = 1)
 
             with open(  self.d_parcellation[astr_parcellation]['labelMapFile'],
                         mode = 'w') as csv_file:
@@ -391,14 +532,26 @@ class Z2labelmap(ChrisApp):
                             dest        = 'negColor',
                             optional    = True,
                             default     = 'B')
-        self.add_argument("-m", "--maxRange",
-                            help        = "max range for normalization",
+        self.add_argument("-s", "--scaleRange",
+                            help        = "scale range for normalization",
                             type        = float,
-                            dest        = 'f_maxRange',
+                            dest        = 'f_scaleRange',
                             optional    = True,
                             default     = 0.0)
+        self.add_argument("-l", "--lowerFilter",
+                            help        = "filter all z-scores below (normalized) <lowerFilter> to 0.0",
+                            type        = float,
+                            dest        = 'f_lowerFilter',
+                            optional    = True,
+                            default     = -1.0)
+        self.add_argument("-u", "--upperFilter",
+                            help        = "filter all z-scores above (normalized) <upperFilter> to 0.0",
+                            type        = float,
+                            dest        = 'f_upperFilter',
+                            optional    = True,
+                            default     = -1.0)
         self.add_argument("-z", "--zFile",
-                            help        = "z-score file to read rel to input directory",
+                            help        = "z-score file to read (relative to input directory)",
                             type        = str,
                             dest        = 'zFile',
                             optional    = True,
@@ -424,6 +577,13 @@ class Z2labelmap(ChrisApp):
                             action      = 'store_true',
                             optional    = True,
                             default     = False)
+        self.add_argument('--meta',
+                            help        = 'if specified, print plugin meta data',
+                            type        = bool,
+                            dest        = 'b_meta',
+                            action      = 'store_true',
+                            optional    = True,
+                            default     = False)
 
     def manPage_show(self):
         """
@@ -431,6 +591,15 @@ class Z2labelmap(ChrisApp):
         """
         print(Gstr_synopsis)
 
+    def metaData_show(self):
+        """
+        Print the plugin meta data
+        """
+        l_metaData  = dir(self)
+        l_classVar  = [x for x in l_metaData if x.isupper() ]
+        for str_var in l_classVar:
+            str_val = getattr(self, str_var)
+            print("%20s: %s" % (str_var, str_val))
 
     def run(self, options):
         """
@@ -448,7 +617,7 @@ class Z2labelmap(ChrisApp):
             'structureNames':   [],
             'lh':               copy.deepcopy(self.d_hemiStats),
             'rh':               copy.deepcopy(self.d_hemiStats),
-            'f_maxRange':       self.options.f_maxRange,
+            'f_scaleRange':       self.options.f_scaleRange,
             'zScoreFile':       "",
             'labelMapFile':     "",
             'daM_color':        None
@@ -463,7 +632,11 @@ class Z2labelmap(ChrisApp):
             self.manPage_show()
             sys.exit(0)
 
-        pudb.set_trace()
+        if options.b_meta:
+            self.metaData_show()
+            sys.exit(0)
+
+        # pudb.set_trace()
         if options.b_version:
             print('Plugin Version: %s' % Z2labelmap.VERSION)
             sys.exit(0)
@@ -487,6 +660,7 @@ class Z2labelmap(ChrisApp):
         if b_zFileProcessed:
             self.zScore_processStats('a2009s')
             self.zScore_filterPosNeg('a2009s')
+            self.zScore_bandwidthFilter('a2009s')
             self.zScore_labelFileRGBcalc('a2009s')
             self.zScore_labelFileRGBmake('a2009s')
 
