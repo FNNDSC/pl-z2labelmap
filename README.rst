@@ -64,6 +64,7 @@ In this example, z-scores range between 0.0 and (+/-) 3.0.
                             
 ARGS
 ****
+.. code-block::
 
         <inputDir>
         Required argument.
@@ -118,6 +119,8 @@ Example
 *******
 
 * Assuming a file called 'zfile.csv' in the <inputDirectory> that ranges in z-score between 0.0 and 3.0, use the --scaleRange to reduce the apparent brightness of the map by 50 percent and also remove the lower 80 percent of zscores (this has the effect of only showing the brightest 20 percent of zscores). 
+
+.. code-block:: 
 
     python z2labelmap.py    --scaleRange 2.0 --lowerFilter 0.8    \\
                             --negColor B --posColor R           \\
