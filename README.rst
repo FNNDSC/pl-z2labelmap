@@ -25,39 +25,44 @@ will assign positive z-scores shades of 'red' and negative z-scores shades of 'y
 Synopsis
 ********
 
-        python z2labelmap.py                                            \\
-            [-v <level>] [--verbosity <level>]                          \\
-            [--random]                                                  \\
-            [-p <f_posRange>] [--posRange <f_posRange>]                 \\
-            [-n <f_negRange>] [--negRange <f_negRange>]                 \\
-            [-P <'RGB'>] [--posColor <'RGB'>]                           \\
-            [-N  <'RGB'> [--negColor <'RGB'>]                           \\
-            [-s <f_scaleRange>] [--scaleRange <f_scaleRange>]           \\
-            [-l <f_lowerFilter>] [--lowerFilter <f_lowerFilter>]        \\
-            [-u <f_upperFilter>] [--upperFilter <f_upperFilter>]        \\
-            [-z <zFile>] [--zFile <zFile>]                              \\
-            [--version]                                                 \\
-            [--man]                                                     \\
-            [--meta]                                                    \\
-            <inputDir>                                                  \\
-            <outputDir> 
+.. code-block::
+
+    python z2labelmap.py                                            \\
+        [-v <level>] [--verbosity <level>]                          \\
+        [--random]                                                  \\
+        [-p <f_posRange>] [--posRange <f_posRange>]                 \\
+        [-n <f_negRange>] [--negRange <f_negRange>]                 \\
+        [-P <'RGB'>] [--posColor <'RGB'>]                           \\
+        [-N  <'RGB'> [--negColor <'RGB'>]                           \\
+        [-s <f_scaleRange>] [--scaleRange <f_scaleRange>]           \\
+        [-l <f_lowerFilter>] [--lowerFilter <f_lowerFilter>]        \\
+        [-u <f_upperFilter>] [--upperFilter <f_upperFilter>]        \\
+        [-z <zFile>] [--zFile <zFile>]                              \\
+        [--version]                                                 \\
+        [--man]                                                     \\
+        [--meta]                                                    \\
+        <inputDir>                                                  \\
+        <outputDir> 
 
 Brief example
 *************
 
-* To create a sample/random z-score file and analyze this 
-    created file:
+* To create a sample/random z-score file and analyze this created file:
+
+.. code-block::
 
     mkdir in out
-    python z2labelmap.py    --random                            \\
+    docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing   \
+            fnndsc/pl-z2labelmap z2labelmap.py            \
+            --random                            \\
                             --posRange 3.0 --negRange -3.0      \\
                             in out
 
 In this example, z-scores range between 0.0 and (+/-) 3.0.
 
-* To analyze a file already located at 'in/zfile.csv', apply a 
-    scaleRange and also filter out the lower 80\% of z-scores:
+* To analyze a file already located at 'in/zfile.csv', apply a scaleRange and also filter out the lower 80\% of z-scores:
 
+.. code-block::
     python z2labelmap.py    --scaleRange 2.0 --lowerFilter 0.8  \\
                             --negColor B --posColor R           \\
                             in out
@@ -122,7 +127,7 @@ Example
 
 .. code-block:: 
 
-    python z2labelmap.py    --scaleRange 2.0 --lowerFilter 0.8    \\
+    python z2labelmap.py    --scaleRange 2.0 --lowerFilter 0.8  \\
                             --negColor B --posColor R           \\
                             in out
 
