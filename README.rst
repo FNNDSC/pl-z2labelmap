@@ -63,7 +63,7 @@ To run using ``docker``, be sure to assign an "input" directory to ``/incoming``
             --man                                                       \
             /incoming /outgoing
 
-This will generate the internal help file.
+This will print the internal help.
 
 Make sure that the host ``$(pwd)/out`` directory is world writable!
 
@@ -75,11 +75,11 @@ Brief example
 .. code-block::
 
     mkdir in out
-    docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing   \
-            fnndsc/pl-z2labelmap z2labelmap.py                       \
-                            --random                                 \
-                            --posRange 3.0 --negRange -3.0           \
-                            /incoming /outgoing
+    docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing  \
+            fnndsc/pl-z2labelmap z2labelmap.py                      \
+            --random                                                \
+            --posRange 3.0 --negRange -3.0                          \
+            /incoming /outgoing
 
 In this example, z-scores range between 0.0 and (+/-) 3.0.
 
@@ -88,9 +88,9 @@ In this example, z-scores range between 0.0 and (+/-) 3.0.
 .. code-block::
     docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing  \
             fnndsc/pl-z2labelmap z2labelmap.py                      \
-                            --scaleRange 2.0 --lowerFilter 0.8      \
-                            --negColor B --posColor R               \
-                            /incoming /outgoing
+            --scaleRange 2.0 --lowerFilter 0.8                      \
+            --negColor B --posColor R                               \
+            /incoming /outgoing
 
 * Assuming a file called 'zfile.csv' in the <inputDirectory> that ranges in z-score between 0.0 and 3.0, use the --scaleRange to reduce the apparent brightness of the map by 50 percent and also remove the lower 80 percent of zscores (this has the effect of only showing the brightest 20 percent of zscores). 
 
@@ -98,9 +98,9 @@ In this example, z-scores range between 0.0 and (+/-) 3.0.
 
     docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing  \
             fnndsc/pl-z2labelmap z2labelmap.py                      \
-                            --scaleRange 2.0 --lowerFilter 0.8      \
-                            --negColor B --posColor R               \
-                            /incoming /outgoing
+            --scaleRange 2.0 --lowerFilter 0.8                      \
+            --negColor B --posColor R                               \
+            /incoming /outgoing
 
 ARGS
 ****
