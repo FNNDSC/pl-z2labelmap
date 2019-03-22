@@ -182,7 +182,7 @@ class Z2labelmap(ChrisApp):
         """
         Filter the original z-score vector into a strictly positive
         and negative vectors and normalize (either to natural range or
-        specified range)
+        specified range).
         """
         b_status = False
 
@@ -204,6 +204,80 @@ class Z2labelmap(ChrisApp):
                         self.d_parcellation[astr_parcellation][str_hemi][str_sign] = \
                             [-x/f_range if x < 0 else 0 for x in self.d_parcellation[astr_parcellation][str_hemi][str_sign]]
                     b_status    = True
+
+        return {
+            'status':b_status
+        }
+
+    def zScore_labelFileRGBcalc(self, astr_parcellation):
+        """
+        Calculate the RGB table for the lh/rh based on the normalized z-score pos and
+        negative vectors.
+
+        Modify the 'daM_color' attribute of the corresponding dictionary core.
+        """
+        b_status = False
+
+        if astr_parcellation in self.d_parcellation.keys():
+            N           = len(self.d_parcellation[astr_parcellation]['structureNames'])
+            daM_color   = {}
+            for str_hemi in ['lh', 'rh']:
+                dav_color    = {}
+                for str_sign in ['pos', 'neg']:
+                    av_zscore               = np.array(self.d_parcellation[astr_parcellation][str_hemi]['%sNorm' % str_sign])
+                    av_zscore.shape         = (N, 1)
+                    dav_color[str_sign]     = np.array([0, 0, 0])
+                    b_status                = True
+                    # First create the color "vector"
+                    if 'R' in getattr(self.options, '%sColor' % str_sign): dav_color[str_sign][0]   = 255
+                    if 'G' in getattr(self.options, '%sColor' % str_sign): dav_color[str_sign][1]   = 255
+                    if 'B' in getattr(self.options, '%sColor' % str_sign): dav_color[str_sign][2]   = 255
+                    # Now replicate this into a numpy *array* that is matrix-like
+                    daM_color[str_sign] = np.tile(dav_color[str_sign], (N, 1))
+                    # and scale each row with the corresponding z-score
+                    daM_color[str_sign] = daM_color[str_sign] * av_zscore
+                daM_color[str_hemi] = daM_color['pos'] + daM_color['neg']
+            self.d_parcellation[astr_parcellation]['daM_color'] = daM_color   
+
+        return {
+            'status':b_status
+        }
+
+    def zScore_labelFileRGBmake(self, astr_parcellation):
+        """
+        Make the RGB table
+        """
+        b_status = False
+        pudb.set_trace()
+        if astr_parcellation in self.d_parcellation.keys():
+            b_status        = True
+            N               = len(self.d_parcellation[astr_parcellation]['structureNames'])
+            daM_color       = self.d_parcellation[astr_parcellation]['daM_color']   
+            aM_fullbrain    = np.concatenate((daM_color['lh'], daM_color['rh'])).astype(int)
+            l_lhStruct      = ['lh-%s' % x for x in self.d_parcellation[astr_parcellation]['structureNames']]
+            l_rhStruct      = ['rh-%s' % x for x in self.d_parcellation[astr_parcellation]['structureNames']]
+            a_lhOffset      = np.zeros((N,1)) + 111000 
+            a_rhOffset      = np.zeros((N,1)) + 121000 
+            a_lhrhOffset    = np.concatenate((a_lhOffset, a_rhOffset))
+            l_allStructs    = l_lhStruct + l_rhStruct
+            a_count         = np.arange(1, 2*N+1) + a_lhrhOffset.transpose()
+            a_count         = a_count.transpose().astype(int)
+            a_alpha         = np.zeros((2*N,1)).astype(int)
+
+            rows            = zip(
+                                a_count.tolist(),
+                                l_allStructs,
+                                aM_fullbrain[0].tolist(),
+                                aM_fullbrain[1].tolist(),
+                                aM_fullbrain[2].tolist(),
+                                a_alpha.tolist()
+            )
+
+            with open(  self.d_parcellation[astr_parcellation]['labelMapFile'],
+                        mode = 'w') as csv_file:
+                writer = csv.writer(csv_file, delimiter = '\t')
+                writer.writerow(['  0  Unknown                           0   0   0    0'])
+                writer.writerows(rows)
 
         return {
             'status':b_status
@@ -334,11 +408,12 @@ class Z2labelmap(ChrisApp):
         }
         self.d_core         = {
             'structureNames':   [],
-            'lh':           copy.deepcopy(self.d_hemiStats),
-            'rh':           copy.deepcopy(self.d_hemiStats),
-            'f_maxRange':   self.options.f_maxRange,
-            'zScoreFile':   "",
-            'labelMapFile': ""
+            'lh':               copy.deepcopy(self.d_hemiStats),
+            'rh':               copy.deepcopy(self.d_hemiStats),
+            'f_maxRange':       self.options.f_maxRange,
+            'zScoreFile':       "",
+            'labelMapFile':     "",
+            'daM_color':        None
         }
         self.d_parcellation = {
             'a2009s':   copy.deepcopy(self.d_core),
@@ -346,7 +421,7 @@ class Z2labelmap(ChrisApp):
             'default':  copy.deepcopy(self.d_core)
         }
 
-        # pudb.set_trace()
+        pudb.set_trace()
         if options.b_version:
             print('Plugin Version: %s' % Z2labelmap.VERSION)
             sys.exit(0)
@@ -370,6 +445,8 @@ class Z2labelmap(ChrisApp):
         if b_zFileProcessed:
             self.zScore_processStats('a2009s')
             self.zScore_filterPosNeg('a2009s')
+            self.zScore_labelFileRGBcalc('a2009s')
+            self.zScore_labelFileRGBmake('a2009s')
 
 
 # ENTRYPOINT
