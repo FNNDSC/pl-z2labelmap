@@ -24,6 +24,33 @@ import  copy
 # import the Chris app superclass
 from chrisapp.base import ChrisApp
 
+Gstr_synopsis = """
+
+    NAME
+
+        z2labelmap.py
+
+    SYNOPSIS
+
+    BRIEF EXAMPLE
+
+        * To create a sample/random z-score file and analyze this file:
+
+            mkdir in out
+            python z2labelmap.py --random --posRange 3.0 --negRange -3.0 in out
+
+        * To analyze a file already located at 'in/zfile.csv':
+
+            python z2labelmap.py --maxRange 4.0 --negColor B --posColor R in out
+
+
+
+    DESCRIPTION
+
+    ARGS
+
+
+"""
 
 class Z2labelmap(ChrisApp):
     """
@@ -135,6 +162,8 @@ class Z2labelmap(ChrisApp):
             'S_temporal_sup',
             'S_temporal_transverse'
         ]
+        maxlen  = len(max(self.l_a2009s, key = len))
+        self.l_a2009s   = [x + (' ' * (maxlen - len(x))) for x in self.l_a2009s]
         return self.l_a2009s
 
     def zScoreFile_read(self, astr_parcellation):
@@ -263,21 +292,17 @@ class Z2labelmap(ChrisApp):
             a_count         = np.arange(1, 2*N+1) + a_lhrhOffset.transpose()
             a_count         = a_count.transpose().astype(int)
             a_alpha         = np.zeros((2*N,1)).astype(int)
+            astr_allStructs = np.array((l_allStructs))
+            astr_allStructs.shape = (len(astr_allStructs), 1)
 
-            rows            = zip(
-                                a_count.tolist(),
-                                l_allStructs,
-                                aM_fullbrain[0].tolist(),
-                                aM_fullbrain[1].tolist(),
-                                aM_fullbrain[2].tolist(),
-                                a_alpha.tolist()
-            )
+            a_allData       = np.concatenate((a_count, astr_allStructs, aM_fullbrain, a_alpha), axis = 1)
+            # a_allData       = np.concatenate((a_count.tolist(), astr_allStructs.tolist(), aM_fullbrain.tolist(), a_alpha.tolist()), axis = 1)
 
             with open(  self.d_parcellation[astr_parcellation]['labelMapFile'],
                         mode = 'w') as csv_file:
                 writer = csv.writer(csv_file, delimiter = '\t')
-                writer.writerow(['  0  Unknown                           0   0   0    0'])
-                writer.writerows(rows)
+                writer.writerow(['0       Unknown                         0       0       0       0'])
+                writer.writerows(a_allData)
 
         return {
             'status':b_status
@@ -377,7 +402,7 @@ class Z2labelmap(ChrisApp):
                             type        = str,
                             dest        = 'zFile',
                             optional    = True,
-                            default     = 'zfile.txt')
+                            default     = 'zfile.csv')
         self.add_argument('--random',
                             help        = 'if specified, generate a z-score file',
                             type        = bool,
@@ -385,7 +410,6 @@ class Z2labelmap(ChrisApp):
                             action      = 'store_true',
                             optional    = True,
                             default     = False)
-
         self.add_argument('--version',
                             help        = 'if specified, print version number',
                             type        = bool,
@@ -393,6 +417,20 @@ class Z2labelmap(ChrisApp):
                             action      = 'store_true',
                             optional    = True,
                             default     = False)
+        self.add_argument('--man',
+                            help        = 'if specified, print man page',
+                            type        = bool,
+                            dest        = 'b_man',
+                            action      = 'store_true',
+                            optional    = True,
+                            default     = False)
+
+    def manPage_show(self):
+        """
+        Print some quick help.
+        """
+        print(Gstr_synopsis)
+
 
     def run(self, options):
         """
@@ -420,6 +458,10 @@ class Z2labelmap(ChrisApp):
             'DKatlas':  copy.deepcopy(self.d_core),
             'default':  copy.deepcopy(self.d_core)
         }
+
+        if options.b_man:
+            self.manPage_show()
+            sys.exit(0)
 
         pudb.set_trace()
         if options.b_version:
