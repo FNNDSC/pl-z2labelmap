@@ -1,7 +1,8 @@
-#                                                            _
+#!/usr/bin/env python                                             
+#               _
 # z2labelmap ds app
 #
-# (c) 2016 Fetal-Neonatal Neuroimaging & Developmental Science Center
+# (c) 2019 Fetal-Neonatal Neuroimaging & Developmental Science Center
 #                   Boston Children's Hospital
 #
 #              http://childrenshospital.org/FNNDSC/
@@ -9,10 +10,11 @@
 #
 
 import  os
-from    os          import  listdir, sep
-from    os.path     import  abspath, basename, isdir
-import  numpy       as      np
-import  pandas      as      pd
+from    os                  import  listdir, sep
+from    os.path             import  abspath, basename, isdir
+from    distutils.dir_util  import  copy_tree
+import  numpy               as      np
+import  pandas              as      pd
 import  csv
 import  shutil
 import  pudb
@@ -91,8 +93,8 @@ Gstr_synopsis = """
             
                 --posColor R --negColor RG
 
-        will assign positive z-scores shades of 'red' and negative z-scores shades
-        of 'yellow' (Red + Green = Yellow).
+        will assign positive z-scores shades of 'red' and negative z-scores 
+        shades of 'yellow' (Red + Green = Yellow).
 
     ARGS
 
@@ -108,7 +110,8 @@ Gstr_synopsis = """
         Verbosity level for app. Not used currently.
 
         [--random]
-        If specified, generate a z-score file based on <posRange> and <negRange>.
+        If specified, generate a z-score file based on <posRange> and 
+        <negRange>.
 
         [-p <f_posRange>] [--posRange <f_posRange>]
         Positive range for random max deviation generation.
@@ -123,9 +126,10 @@ Gstr_synopsis = """
         Some combination of 'R', 'G', B' for negative heat.
 
         [-s <f_scaleRange>] [--scaleRange <f_scaleRange>]
-        Scale range for normalization. This has the effect of controlling the
-        brightness of the map. For example, if this 1.5 the effect
-        is increase the apparent range by 50% which darkens all colors values.
+        Scale range for normalization. This has the effect of controlling 
+        the brightness of the map. For example, if this 1.5 the effect
+        is increase the apparent range by 50% which darkens all colors 
+        values.
 
         [-l <f_lowerFilter>] [--lowerFilter <f_lowerFilter>]
         Filter all z-scores below (normalized) <lowerFilter> to 0.0.
@@ -134,7 +138,8 @@ Gstr_synopsis = """
         Filter all z-scores above (normalized) <upperFilter> to 0.0.
 
         [-z <zFile>] [--zFile <zFile>]
-        z-score file to read (relative to input directory). Defaults to 'zfile.csv'.
+        z-score file to read (relative to input directory). Defaults to 
+        'zfile.csv'.
 
         [--version]
         If specified, print version number. 
@@ -153,7 +158,7 @@ Gstr_synopsis = """
           also remove the lower 80 percent of zscores (this has the effect 
           of only showing the brightest 20 percent of zscores). 
 
-        python z2labelmap.py    --scaleRange 2.0 --lowerFilter 0.8    \\
+        python z2labelmap.py    --scaleRange 2.0 --lowerFilter 0.8  \\
                                 --negColor B --posColor R           \\
                                 in out
 
@@ -420,6 +425,7 @@ class Z2labelmap(ChrisApp):
         Make the RGB table
         """
         b_status = False
+
         if astr_parcellation in self.d_parcellation.keys():
             b_status        = True
             N               = len(self.d_parcellation[astr_parcellation]['structureNames'])
@@ -457,7 +463,7 @@ class Z2labelmap(ChrisApp):
         
         This file has three columns,
 
-        <structName> <leftHemisphere-z-score> <rightHemisphere-z-score>
+            <structName> <leftHemisphere-z-score> <rightHemisphere-z-score>
 
         Save file to both input and output directories.
 
@@ -493,6 +499,7 @@ class Z2labelmap(ChrisApp):
             '%s/%s' % (self.options.inputdir,   self.options.zFile),
             '%s/%s' % (self.options.outputdir,  self.options.zFile)
         )
+
         return {
             'status':   True
         }
@@ -641,10 +648,13 @@ class Z2labelmap(ChrisApp):
             print('Plugin Version: %s' % Z2labelmap.VERSION)
             sys.exit(0)
 
-        self.d_parcellation['a2009s']['structureNames'] = self.a2009sStructList_define()
-        self.d_parcellation['a2009s']['zScoreFile']   = '%s/%s' % \
+        copy_tree(self.options.inputdir, self.options.outputdir)
+
+        self.d_parcellation['a2009s']['structureNames']     = \
+                 self.a2009sStructList_define()
+        self.d_parcellation['a2009s']['zScoreFile']         = '%s/%s' % \
                 (self.options.inputdir, self.options.zFile)
-        self.d_parcellation['a2009s']['labelMapFile']   = '%s/%s' % \
+        self.d_parcellation['a2009s']['labelMapFile']       = '%s/%s' % \
                 (self.options.outputdir, 'aparc.annot.a2009s.ctab')
 
         b_zFileProcessed        = False
