@@ -15,7 +15,7 @@ def readme():
 
 setup(
       name             =   'z2labelmap',
-      version          =   '1.1.2',
+      version          =   '1.1.3',
       description      =   'Convert lh/rh z-score vector to FreeSurfer labelmap', 
       long_description =   readme(),
       author           =   'Rudolph Pienaar',
