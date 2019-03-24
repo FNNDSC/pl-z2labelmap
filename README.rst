@@ -22,6 +22,27 @@ Abstract
 
     <str_structureName> <float_lh_zScore> <float_rh_zScore>
 
+for example,
+
+.. code::
+
+    G_and_S_frontomargin     ,0.5448091104245965,2.1984208046033986
+    G_and_S_occipital_inf    ,2.8903998330126033,0.4572919630956416
+    G_and_S_paracentral      ,1.2532502118658488,2.926149972421385
+    G_and_S_subcentral       ,0.08957410838556834,-1.0394448514419545
+    G_and_S_transv_frontopol ,2.506061659979438,2.9292234802387016
+    G_and_S_cingul-Ant       ,1.5676599314826145,1.2518433645260645
+    G_and_S_cingul-Mid-Ant   ,-2.0852613982062906,-1.8590432278757094
+    G_and_S_cingul-Mid-Post  ,-1.7092668741782007,0.3838372718413847
+                                ...
+                                ...
+    S_precentral-sup-part    ,-1.3960847017718006,1.6622440401857297
+    S_suborbital             ,2.8856830919767953,1.8816070202675919
+    S_subparietal            ,1.3496617403262476,-1.675320447065229
+    S_temporal_inf           ,1.4126969390609307,-0.6749188207976502
+    S_temporal_sup           ,-2.4332291352859303,2.5302245055483006
+    S_temporal_transverse    ,0.6026745551244295,-1.601135653918334
+                             
 and creates a FreeSurfer labelmap where ``<str_structureName>`` colors correspond to the z-score (normalized between 0 and 255).
 
 Currently, only the ``aparc.a2009s`` FreeSurfer segmentation is fully supported, however future parcellation support is planned.
