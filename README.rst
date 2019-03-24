@@ -61,10 +61,31 @@ Synopsis
 Run
 ----
 
+This ``plugin`` can be run in two modes: natively as a python package or as a containerized docker image.
+
+Using PyPI
+~~~~~~~~~~
+
+To run from PyPI, simply do a 
+
+.. code:: bash
+
+    pip install z2labelmap
+
+
 Using ``docker run``
 ~~~~~~~~~~~~~~~~~~~~
 
-To run using ``docker``, be sure to assign an "input" directory to ``/incoming`` and an output directory to ``/outgoing``
+To run using ``docker``, be sure to assign an "input" directory to ``/incoming`` and an output directory to ``/outgoing``. *Make sure that the host ``$(pwd)/out`` directory is world writable!*
+
+Now, prefix all calls with 
+
+.. code:: bash
+
+    docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing      \
+            fnndsc/pl-z2labelmap z2labelmap.py                          \
+
+Thus, getting on-line help is:
 
 .. code:: bash
 
@@ -72,10 +93,6 @@ To run using ``docker``, be sure to assign an "input" directory to ``/incoming``
             fnndsc/pl-z2labelmap z2labelmap.py                          \
             --man                                                       \
             /incoming /outgoing
-
-This will print the internal help.
-
-Make sure that the host ``$(pwd)/out`` directory is world writable!
 
 Brief example
 ~~~~~~~~~~~~~
@@ -112,8 +129,8 @@ In this example, z-scores range between 0.0 and (+/-) 3.0.
             --negColor B --posColor R                               \
             /incoming /outgoing
 
-ARGS
------
+Command line arguments
+----------------------
 
 .. code::
 
