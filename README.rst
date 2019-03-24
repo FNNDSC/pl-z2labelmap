@@ -84,7 +84,7 @@ to get inline help.
 Using ``docker run``
 ~~~~~~~~~~~~~~~~~~~~
 
-To run using ``docker``, be sure to assign an "input" directory to ``/incoming`` and an output directory to ``/outgoing``. *Make sure that the host ``$(pwd)/out`` directory is world writable!*
+To run using ``docker``, be sure to assign an "input" directory to ``/incoming`` and an output directory to ``/outgoing``. *Make sure that the* ``$(pwd)/out`` *directory is world writable!*
 
 Now, prefix all calls with 
 
@@ -102,10 +102,13 @@ Thus, getting inline help is:
             --man                                                       \
             /incoming /outgoing
 
-Brief example
-~~~~~~~~~~~~~
+Example2
+--------
 
-* To create a sample/random z-score file and analyze this created file:
+Create a sample/random z-score file and analyze
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* In the absense of an actual z-score file, the script can create one. This can then be used in subsequent analysis:
 
 .. code::
 
@@ -116,9 +119,23 @@ Brief example
             --posRange 3.0 --negRange -3.0                          \
             /incoming /outgoing
 
+or without docker
+
+.. code::
+
+    mkdir in out
+    z2labelmap.py                                                   \
+            --random                                                \
+            --posRange 3.0 --negRange -3.0                          \
+            /in /out
+
+
 In this example, z-scores range between 0.0 and (+/-) 3.0.
 
-* To analyze a file already located at 'in/zfile.csv', apply a scaleRange and also filter out the lower 80\% of z-scores:
+Control relative brightness and lower filter low z-scores from final labelmap
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* To analyze a file already located at ``in/zfile.csv``, apply a ``scaleRange`` and also filter out the lower 80\% of z-scores:
 
 .. code::
 
@@ -128,15 +145,7 @@ In this example, z-scores range between 0.0 and (+/-) 3.0.
             --negColor B --posColor R                               \
             /incoming /outgoing
 
-* Assuming a file called 'zfile.csv' in the <inputDirectory> that ranges in z-score between 0.0 and 3.0, use the --scaleRange to reduce the apparent brightness of the map by 50 percent and also remove the lower 80 percent of zscores (this has the effect of only showing the brightest 20 percent of zscores). 
-
-.. code:: 
-
-    docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing  \
-            fnndsc/pl-z2labelmap z2labelmap.py                      \
-            --scaleRange 2.0 --lowerFilter 0.8                      \
-            --negColor B --posColor R                               \
-            /incoming /outgoing
+This assumes a file called 'zfile.csv' in the <inputDirectory> that ranges in z-score between 0.0 and 3.0, and uses the --scaleRange to reduce the apparent brightness of the map by 50 percent. Furthermore, the lower 80 percent of z-scores are removed (this has the effect of only showing the brightest 20 percent of zscores). 
 
 Command line arguments
 ----------------------
