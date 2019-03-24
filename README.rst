@@ -72,6 +72,14 @@ To run from PyPI, simply do a
 
     pip install z2labelmap
 
+and run with
+
+.. code:: bash
+
+    z2labelmap.py --man /tmp /tmp
+
+to get inline help.
+
 
 Using ``docker run``
 ~~~~~~~~~~~~~~~~~~~~
@@ -85,7 +93,7 @@ Now, prefix all calls with
     docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing      \
             fnndsc/pl-z2labelmap z2labelmap.py                          \
 
-Thus, getting on-line help is:
+Thus, getting inline help is:
 
 .. code:: bash
 
@@ -113,6 +121,7 @@ In this example, z-scores range between 0.0 and (+/-) 3.0.
 * To analyze a file already located at 'in/zfile.csv', apply a scaleRange and also filter out the lower 80\% of z-scores:
 
 .. code::
+
     docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing  \
             fnndsc/pl-z2labelmap z2labelmap.py                      \
             --scaleRange 2.0 --lowerFilter 0.8                      \
