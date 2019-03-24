@@ -1,14 +1,24 @@
-################################
 pl-z2labelmap
-################################
+=============
+
+.. image:: https://badge.fury.io/py/pl-z2labelmap.svg
+    :target: https://badge.fury.io/py/pl-z2labelmap
+
+.. image:: https://travis-ci.org/FNNDSC/pl-z2labelmap.svg?branch=master
+    :target: https://travis-ci.org/FNNDSC/pl-z2labelmap
+
+.. image:: https://img.shields.io/badge/python-3.5%2B-blue.svg
+    :target: https://badge.fury.io/py/pl-z2labelmap
+
+.. contents:: Table of Contents
 
 
 Abstract
-********
+--------
 
 zlabelmap.py generates FreeSurfer labelmaps from z-score vector files. Essentially the script consumes an input text vector file of 
 
-.. code-block::
+.. code::
 
     <str_structureName> <float_lh_zScore> <float_rh_zScore>
 
@@ -20,16 +30,16 @@ Negative z-scores and positive z-scores are treated in the same manner but have 
 
 Positive and negative z-Scores can be assigned some combination of the chars 'RGB' to indicate which color dimension will reflect the z-Score. For example, a 
     
-.. code-block::
+.. code::
 
     --posColor R --negColor RG
 
 will assign positive z-scores shades of 'red' and negative z-scores shades of 'yellow' (Red + Green = Yellow).
 
 Synopsis
-********
+--------
 
-.. code-block::
+.. code::
 
     python z2labelmap.py                                            \
         [-v <level>] [--verbosity <level>]                          \
@@ -49,14 +59,14 @@ Synopsis
         <outputDir> 
 
 Run
-***
+----
 
 Using ``docker run``
-====================
+~~~~~~~~~~~~~~~~~~~~
 
 To run using ``docker``, be sure to assign an "input" directory to ``/incoming`` and an output directory to ``/outgoing``
 
-.. code-block:: bash
+.. code:: bash
 
     docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing      \
             fnndsc/pl-z2labelmap z2labelmap.py                          \
@@ -68,11 +78,11 @@ This will print the internal help.
 Make sure that the host ``$(pwd)/out`` directory is world writable!
 
 Brief example
-=============
+~~~~~~~~~~~~~
 
 * To create a sample/random z-score file and analyze this created file:
 
-.. code-block::
+.. code::
 
     mkdir in out
     docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing  \
@@ -85,7 +95,7 @@ In this example, z-scores range between 0.0 and (+/-) 3.0.
 
 * To analyze a file already located at 'in/zfile.csv', apply a scaleRange and also filter out the lower 80\% of z-scores:
 
-.. code-block::
+.. code::
     docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing  \
             fnndsc/pl-z2labelmap z2labelmap.py                      \
             --scaleRange 2.0 --lowerFilter 0.8                      \
@@ -94,7 +104,7 @@ In this example, z-scores range between 0.0 and (+/-) 3.0.
 
 * Assuming a file called 'zfile.csv' in the <inputDirectory> that ranges in z-score between 0.0 and 3.0, use the --scaleRange to reduce the apparent brightness of the map by 50 percent and also remove the lower 80 percent of zscores (this has the effect of only showing the brightest 20 percent of zscores). 
 
-.. code-block:: 
+.. code:: 
 
     docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing  \
             fnndsc/pl-z2labelmap z2labelmap.py                      \
@@ -103,8 +113,9 @@ In this example, z-scores range between 0.0 and (+/-) 3.0.
             /incoming /outgoing
 
 ARGS
-****
-.. code-block::
+-----
+
+.. code::
 
         <inputDir>
         Required argument.
