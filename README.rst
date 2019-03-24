@@ -16,25 +16,23 @@ pl-z2labelmap
 Abstract
 --------
 
-zlabelmap.py generates FreeSurfer labelmaps from z-score vector files. Essentially the script consumes an input text vector file of 
+`zlabelmap.py` generates FreeSurfer labelmaps from z-score vector files. Essentially the script consumes an input text vector file of 
 
 .. code::
 
     <str_structureName> <float_lh_zScore> <float_rh_zScore>
 
-and creates a FreeSurfer labelmap where <str_structureName> colors correspond to the z-score (normalized between 0 and 255).
+and creates a FreeSurfer labelmap where `<str_structureName>` colors correspond to the z-score (normalized between 0 and 255).
 
-Currently, only the 'aparc.a2009s' FreeSurfer segmentation is fully supported, however future parcellation support is planned.
+Currently, only the `aparc.a2009s` FreeSurfer segmentation is fully supported, however future parcellation support is planned.
 
-Negative z-scores and positive z-scores are treated in the same manner but have sign-specific color specifications.
-
-Positive and negative z-Scores can be assigned some combination of the chars 'RGB' to indicate which color dimension will reflect the z-Score. For example, a 
+Negative z-scores and positive z-scores are treated in the same manner but have sign-specific color specifications. Positive and negative z-Scores can be assigned some combination of the chars `RGB` to indicate which color dimension will reflect the z-Score. For example, a 
     
 .. code::
 
     --posColor R --negColor RG
 
-will assign positive z-scores shades of 'red' and negative z-scores shades of 'yellow' (Red + Green = Yellow).
+will assign positive z-scores shades of `red` and negative z-scores shades of `yellow` (Red + Green = Yellow).
 
 Synopsis
 --------
