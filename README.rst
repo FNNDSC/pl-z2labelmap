@@ -1,11 +1,11 @@
 pl-z2labelmap
 =============
 
-.. image:: https://badge.fury.io/py/pl-z2labelmap.svg
-    :target: https://badge.fury.io/py/pl-z2labelmap
+.. image:: https://badge.fury.io/py/z2labelmap.svg
+    :target: https://badge.fury.io/py/z2labelmap
 
-.. image:: https://travis-ci.org/FNNDSC/pl-z2labelmap.svg?branch=master
-    :target: https://travis-ci.org/FNNDSC/pl-z2labelmap
+.. image:: https://travis-ci.org/FNNDSC/z2labelmap.svg?branch=master
+    :target: https://travis-ci.org/FNNDSC/z2labelmap
 
 .. image:: https://img.shields.io/badge/python-3.5%2B-blue.svg
     :target: https://badge.fury.io/py/pl-z2labelmap
@@ -102,7 +102,7 @@ Thus, getting inline help is:
             --man                                                       \
             /incoming /outgoing
 
-Example2
+Examples
 --------
 
 Create a sample/random z-score file and analyze
