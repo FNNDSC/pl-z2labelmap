@@ -18,8 +18,7 @@ Abstract
 
 ``zlabelmap.py`` generates FreeSurfer labelmaps from z-score vector files. These labelmap files are used by FreeSurfer to color-code parcellated brain regions. By calculating a z-score to labelmap transform, we are able to show a heat map, hightlight brain regions that differ from some comparative reference, as shown below 
 
-.. image:: FNNDSC/pl-z2labelmap/wiki/images/subj1-heatmap/frame126.png
-   :target: https://github.com/
+.. image:: https://github.com/FNNDSC/pl-z2labelmap/wiki/images/subj1-heatmap/frame126.png
 
 where positive volume deviations of a parcellated brain region are shown in red (i.e. the subject had a larger volume in that area than the reference), and negative volume deviations are shown in blue (i.e. the subject had a smaller volume in that area than reference).
 
