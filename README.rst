@@ -16,7 +16,15 @@ pl-z2labelmap
 Abstract
 --------
 
-``zlabelmap.py`` generates FreeSurfer labelmaps from z-score vector files. Essentially the script consumes an input text vector file of 
+``zlabelmap.py`` generates FreeSurfer labelmaps from z-score vector files. These labelmap files are used by FreeSurfer to color-code parcellated brain regions. By calculating a z-score to labelmap transform, we are able to show a heat map, hightlight brain regions that differ from some comparative reference, as shown below 
+
+[[https://github.com/FNNDSC/pl-z2labelmap/wiki/images/subj1-heatmap/frame126.png]]
+
+where positive volume deviations of a parcellated brain region are shown in red (i.e. the subject had a larger volume in that area than the reference), and negative volume deviations are shown in blue (i.e. the subject had a smaller volume in that area than reference).
+
+_Note that this are randomly generated z-scores purely for illustrative purposes_.
+
+Essentially the script consumes an input text vector file of 
 
 .. code::
 
@@ -36,6 +44,8 @@ for example,
     G_and_S_cingul-Mid-Post  ,-2.4096082230335485,1.166457973597625
                               ...
                               ...
+    S_postcentral            ,1.3277159068067768,-1.4042773812503526
+    S_precentral-inf-part    ,-1.9467169777576718,1.7216636236995733
     S_precentral-sup-part    ,0.764673539853991,2.1081570332369504
     S_suborbital             ,0.522368665639954,-2.3593237820349007
     S_subparietal            ,-0.14697262729901928,-2.2116605141889094
@@ -53,27 +63,8 @@ Negative z-scores and positive z-scores are treated in the same manner but have 
 
     --posColor R --negColor RG
 
-will assign positive z-scores shades of ``red`` and negative z-scores shades of ``yellow`` (Red + Green = Yellow), for example the above z-score is converted to:
+will assign positive z-scores shades of ``red`` and negative z-scores shades of ``yellow`` (Red + Green = Yellow).
 
-.. code::
-
-    0       Unknown                         0       0       0       0
-    11101   lh-G_and_S_frontomargin         0       0       0       0
-    11102   lh-G_and_S_occipital_inf        0       0       0       0
-    11103   lh-G_and_S_paracentral          0       0       0       0
-    11104   lh-G_and_S_subcentral           103     103     0       0
-    11105   lh-G_and_S_transv_frontopol     0       0       0       0
-    11106   lh-G_and_S_cingul-Ant           0       0       110     0
-    11107   lh-G_and_S_cingul-Mid-Ant       0       0       0       0
-    11108   lh-G_and_S_cingul-Mid-Post      0       0       111     0
-                                ...
-                                ...
-    12169   rh-S_precentral-sup-part        0       0       0       0
-    12170   rh-S_suborbital                 0       0       110     0
-    12171   rh-S_subparietal                0       0       103     0
-    12172   rh-S_temporal_inf               0       0       0       0
-    12173   rh-S_temporal_sup               119     119     0       0
-    12174   rh-S_temporal_transverse        0       0       0       0
                                
 
 Synopsis
@@ -186,6 +177,34 @@ Control relative brightness and lower filter low z-scores from final labelmap
             /incoming /outgoing
 
 This assumes a file called 'zfile.csv' in the <inputDirectory> that ranges in z-score between 0.0 and 3.0, and uses the --scaleRange to reduce the apparent brightness of the map by 50 percent. Furthermore, the lower 80 percent of z-scores are removed (this has the effect of only showing the brightest 20 percent of zscores). 
+
+Using the above referenced z-score file, this results in:
+
+.. code::
+
+.. code::
+
+
+
+    0       Unknown                         0   0   0   0
+    11101	lh-G_and_S_frontomargin     	0	0	0	0
+    11102	lh-G_and_S_occipital_inf    	0	0	0	0
+    11103	lh-G_and_S_paracentral      	0	0	0	0
+    11104	lh-G_and_S_subcentral       	103	0	0	0
+    11105	lh-G_and_S_transv_frontopol 	0	0	0	0
+    11106	lh-G_and_S_cingul-Ant       	0	0	110	0
+    11107	lh-G_and_S_cingul-Mid-Ant   	0	0	0	0
+    11108	lh-G_and_S_cingul-Mid-Post  	0	0	111	0
+                                ...
+                                ...
+    12167	rh-S_postcentral            	0	0	0	0
+    12168	rh-S_precentral-inf-part    	0	0	0	0
+    12169	rh-S_precentral-sup-part    	0	0	0	0
+    12170	rh-S_suborbital             	0	0	110	0
+    12171	rh-S_subparietal            	0	0	103	0
+    12172	rh-S_temporal_inf           	0	0	0	0
+    12173	rh-S_temporal_sup           	119	0	0	0
+    12174	rh-S_temporal_transverse    	0	0	0	0
 
 Command line arguments
 ----------------------
