@@ -22,7 +22,7 @@ Abstract
 
 where positive volume deviations of a parcellated brain region are shown in red (i.e. the subject had a larger volume in that area than the reference), and negative volume deviations are shown in blue (i.e. the subject had a smaller volume in that area than reference).
 
-_Note that this are randomly generated z-scores purely for illustrative purposes_.
+*Note that this are randomly generated z-scores purely for illustrative purposes*.
 
 Essentially the script consumes an input text vector file of 
 
