@@ -26,23 +26,23 @@ for example,
 
 .. code::
 
-    G_and_S_frontomargin     ,0.5448091104245965,2.1984208046033986
-    G_and_S_occipital_inf    ,2.8903998330126033,0.4572919630956416
-    G_and_S_paracentral      ,1.2532502118658488,2.926149972421385
-    G_and_S_subcentral       ,0.08957410838556834,-1.0394448514419545
-    G_and_S_transv_frontopol ,2.506061659979438,2.9292234802387016
-    G_and_S_cingul-Ant       ,1.5676599314826145,1.2518433645260645
-    G_and_S_cingul-Mid-Ant   ,-2.0852613982062906,-1.8590432278757094
-    G_and_S_cingul-Mid-Post  ,-1.7092668741782007,0.3838372718413847
-                                ...
-                                ...
-    S_precentral-sup-part    ,-1.3960847017718006,1.6622440401857297
-    S_suborbital             ,2.8856830919767953,1.8816070202675919
-    S_subparietal            ,1.3496617403262476,-1.675320447065229
-    S_temporal_inf           ,1.4126969390609307,-0.6749188207976502
-    S_temporal_sup           ,-2.4332291352859303,2.5302245055483006
-    S_temporal_transverse    ,0.6026745551244295,-1.601135653918334
-                             
+    G_and_S_frontomargin     ,1.254318450576827,-0.8663546810093861
+    G_and_S_occipital_inf    ,1.0823728865077271,-0.7703944006354377
+    G_and_S_paracentral      ,0.20767669866335847,2.9023126278939912
+    G_and_S_subcentral       ,2.395503357157743,-1.4966482475891556
+    G_and_S_transv_frontopol ,-1.7849555258577423,-2.461419463760234
+    G_and_S_cingul-Ant       ,-2.3831737860960382,1.1892593438667625
+    G_and_S_cingul-Mid-Ant   ,0.03381695289572084,-0.7909116233500506
+    G_and_S_cingul-Mid-Post  ,-2.4096082230335485,1.166457973597625
+                              ...
+                              ...
+    S_precentral-sup-part    ,0.764673539853991,2.1081570332369504
+    S_suborbital             ,0.522368665639954,-2.3593237820349007
+    S_subparietal            ,-0.14697262729901928,-2.2116605141889094
+    S_temporal_inf           ,-1.8442944920810271,-0.6895142771486307
+    S_temporal_sup           ,-1.8645248463693804,2.740099589311164
+    S_temporal_transverse    ,-2.4244451521560073,2.286596403222344
+
 and creates a FreeSurfer labelmap where ``<str_structureName>`` colors correspond to the z-score (normalized between 0 and 255).
 
 Currently, only the ``aparc.a2009s`` FreeSurfer segmentation is fully supported, however future parcellation support is planned.
@@ -53,7 +53,28 @@ Negative z-scores and positive z-scores are treated in the same manner but have 
 
     --posColor R --negColor RG
 
-will assign positive z-scores shades of ``red`` and negative z-scores shades of ``yellow`` (Red + Green = Yellow).
+will assign positive z-scores shades of ``red`` and negative z-scores shades of ``yellow`` (Red + Green = Yellow), for example the above z-score is converted to:
+
+.. code::
+
+    0       Unknown                         0       0       0       0
+    11101   lh-G_and_S_frontomargin         0       0       0       0
+    11102   lh-G_and_S_occipital_inf        0       0       0       0
+    11103   lh-G_and_S_paracentral          0       0       0       0
+    11104   lh-G_and_S_subcentral           103     103     0       0
+    11105   lh-G_and_S_transv_frontopol     0       0       0       0
+    11106   lh-G_and_S_cingul-Ant           0       0       110     0
+    11107   lh-G_and_S_cingul-Mid-Ant       0       0       0       0
+    11108   lh-G_and_S_cingul-Mid-Post      0       0       111     0
+                                ...
+                                ...
+    12169   rh-S_precentral-sup-part        0       0       0       0
+    12170   rh-S_suborbital                 0       0       110     0
+    12171   rh-S_subparietal                0       0       103     0
+    12172   rh-S_temporal_inf               0       0       0       0
+    12173   rh-S_temporal_sup               119     119     0       0
+    12174   rh-S_temporal_transverse        0       0       0       0
+                               
 
 Synopsis
 --------
