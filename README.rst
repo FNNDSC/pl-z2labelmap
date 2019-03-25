@@ -16,7 +16,7 @@ pl-z2labelmap
 Abstract
 --------
 
-``zlabelmap.py`` generates FreeSurfer labelmaps from z-score vector files. These labelmap files are used by FreeSurfer to color-code parcellated brain regions. By calculating a z-score to labelmap transform, we are able to show a heat map, hightlight brain regions that differ from some comparative reference, as shown below 
+``zlabelmap.py`` generates FreeSurfer labelmaps from z-score vector files. These labelmap files are used by FreeSurfer to color-code parcellated brain regions. By calculating a z-score to labelmap transform, we are able to show a heat map and hightlight brain regions that differ from some comparative reference, as shown below 
 
 .. image:: https://github.com/FNNDSC/pl-z2labelmap/wiki/images/subj1-heatmap/frame126.png
 
@@ -181,10 +181,6 @@ This assumes a file called 'zfile.csv' in the <inputDirectory> that ranges in z-
 Using the above referenced z-score file, this results in:
 
 .. code::
-
-.. code::
-
-
 
     0       Unknown                         0   0   0   0
     11101	lh-G_and_S_frontomargin     	0	0	0	0
