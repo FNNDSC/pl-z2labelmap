@@ -178,7 +178,7 @@ class Z2labelmap(ChrisApp):
     TYPE                    = 'ds'
     DESCRIPTION             = 'Convert a file of per-structure z-scores to a FreeSurfer labelmap.'
     DOCUMENTATION           = 'http://wiki'
-    VERSION                 = '1.1.9'
+    VERSION                 = '1.1.10'
     ICON                    = '' # url of an icon image
     LICENSE                 = 'Opensource (MIT)'
     MAX_NUMBER_OF_WORKERS   = 1  # Override with integer value
