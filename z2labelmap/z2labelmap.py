@@ -36,7 +36,7 @@ Gstr_synopsis = """
 
         python z2labelmap.py                                            \\
             [-v <level>] [--verbosity <level>]                          \\
-            [--random]                                                  \\
+            [--random] [--seed <seed>]                                  \\
             [-p <f_posRange>] [--posRange <f_posRange>]                 \\
             [-n <f_negRange>] [--negRange <f_negRange>]                 \\
             [-P <'RGB'>] [--posColor <'RGB'>]                           \\
@@ -57,7 +57,7 @@ Gstr_synopsis = """
           created file:
 
             mkdir in out
-            python z2labelmap.py    --random                            \\
+            python z2labelmap.py    --random --seed 1                   \\
                                     --posRange 3.0 --negRange -3.0      \\
                                     in out
 
@@ -109,9 +109,11 @@ Gstr_synopsis = """
         [-v <level>] [--verbosity <level>]
         Verbosity level for app. Not used currently.
 
-        [--random]
+        [--random] [--seed <seed>]
         If specified, generate a z-score file based on <posRange> and 
-        <negRange>.
+        <negRange>. In addition, if a further optional <seed> is passed,
+        then initialize the random generator with that seed, otherwise
+        system time is used.
 
         [-p <f_posRange>] [--posRange <f_posRange>]
         Positive range for random max deviation generation.
@@ -178,7 +180,7 @@ class Z2labelmap(ChrisApp):
     TYPE                    = 'ds'
     DESCRIPTION             = 'Convert a file of per-structure z-scores to a FreeSurfer labelmap.'
     DOCUMENTATION           = 'http://wiki'
-    VERSION                 = '1.1.10'
+    VERSION                 = '1.1.11'
     ICON                    = '' # url of an icon image
     LICENSE                 = 'Opensource (MIT)'
     MAX_NUMBER_OF_WORKERS   = 1  # Override with integer value
@@ -570,6 +572,12 @@ class Z2labelmap(ChrisApp):
                             action      = 'store_true',
                             optional    = True,
                             default     = False)
+        self.add_argument("-d", "--seed",
+                            help        = "random number seed",
+                            type        = str,
+                            dest        = 'seed',
+                            optional    = True,
+                            default     = '')
         self.add_argument('--version',
                             help        = 'if specified, print version number',
                             type        = bool,
@@ -660,6 +668,12 @@ class Z2labelmap(ChrisApp):
         b_zFileProcessed        = False
 
         if options.b_random:
+            if len(options.seed):
+                # Use user specified seed
+                random.seed(options.seed)
+            else:
+                # else use system time
+                random.seed()
             self.randomZscoreFile_generate('a2009s')
             b_zFileProcessed    = True
         else:

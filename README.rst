@@ -74,7 +74,7 @@ Synopsis
 
     python z2labelmap.py                                            \
         [-v <level>] [--verbosity <level>]                          \
-        [--random]                                                  \
+        [--random] [--seed <seed>]                                  \
         [-p <f_posRange>] [--posRange <f_posRange>]                 \
         [-n <f_negRange>] [--negRange <f_negRange>]                 \
         [-P <'RGB'>] [--posColor <'RGB'>]                           \
@@ -146,7 +146,7 @@ Create a sample/random z-score file and analyze
     mkdir in out
     docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing  \
             fnndsc/pl-z2labelmap z2labelmap.py                      \
-            --random                                                \
+            --random --seed 1                                       \
             --posRange 3.0 --negRange -3.0                          \
             /incoming /outgoing
 
@@ -156,7 +156,7 @@ or without docker
 
     mkdir in out
     z2labelmap.py                                                   \
-            --random                                                \
+            --random --seed 1                                       \
             --posRange 3.0 --negRange -3.0                          \
             /in /out
 
@@ -218,8 +218,8 @@ Command line arguments
         [-v <level>] [--verbosity <level>]
         Verbosity level for app. Not used currently.
 
-        [--random]
-        If specified, generate a z-score file based on <posRange> and <negRange>.
+        [--random] [--seed <seed>]
+        If specified, generate a z-score file based on <posRange> and <negRange>.  In addition, if a further optional <seed> is passed, then initialize the random generator with that seed, otherwise system time is used.
 
         [-p <f_posRange>] [--posRange <f_posRange>]
         Positive range for random max deviation generation.
