@@ -78,7 +78,8 @@ Synopsis
         [-p <f_posRange>] [--posRange <f_posRange>]                 \
         [-n <f_negRange>] [--negRange <f_negRange>]                 \
         [-P <'RGB'>] [--posColor <'RGB'>]                           \
-        [-N  <'RGB'> [--negColor <'RGB'>]                           \
+        [-N  <'RGB'>] [--negColor <'RGB'>]                          \
+        [--imageSet <imageSetDirectory>]                            \
         [-s <f_scaleRange>] [--scaleRange <f_scaleRange>]           \
         [-l <f_lowerFilter>] [--lowerFilter <f_lowerFilter>]        \
         [-u <f_upperFilter>] [--upperFilter <f_upperFilter>]        \
@@ -232,6 +233,9 @@ Command line arguments
 
         [-N  <'RGB'> [--negColor <'RGB'>]
         Some combination of 'R', 'G', B' for negative heat.
+
+        [--imageSet <imageSetDirectory>]
+        If specified, will copy the (container) prepopulated image set in <imageSetDirectory> to the output directory.
 
         [-s <f_scaleRange>] [--scaleRange <f_scaleRange>]
         Scale range for normalization. This has the effect of controlling the

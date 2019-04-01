@@ -41,6 +41,7 @@ Gstr_synopsis = """
             [-n <f_negRange>] [--negRange <f_negRange>]                 \\
             [-P <'RGB'>] [--posColor <'RGB'>]                           \\
             [-N  <'RGB'> [--negColor <'RGB'>]                           \\
+            [--imageSet <imageSetDirectory>]                            \\
             [-s <f_scaleRange>] [--scaleRange <f_scaleRange>]           \\
             [-l <f_lowerFilter>] [--lowerFilter <f_lowerFilter>]        \\
             [-u <f_upperFilter>] [--upperFilter <f_upperFilter>]        \\
@@ -73,8 +74,10 @@ Gstr_synopsis = """
     DESCRIPTION
 
         `zlabelmap.py' generates FreeSurfer labelmaps from z-score vector
-        files. Essentially the script consumes an input text vector file
-        of 
+        files. It can optionally also copy a precalculated image that has
+        been prepared with projected heat maps to the output directory.
+        
+        Essentially the script consumes an input text vector file of 
 
             <str_structureName> <float_lh_zScore> <float_rh_zScore>
 
@@ -124,8 +127,12 @@ Gstr_synopsis = """
         [-P <'RGB'>] [--posColor <'RGB'>]
         Some combination of 'R', 'G', B' for positive heat.
 
-        [-N  <'RGB'> [--negColor <'RGB'>]
+        [-N  <'RGB'>] [--negColor <'RGB'>]
         Some combination of 'R', 'G', B' for negative heat.
+
+        [--imageSet <imageSetDirectory>]
+        If specified, will copy the (container) prepopulated image set in
+        <imageSetDirectory> to the output directory.
 
         [-s <f_scaleRange>] [--scaleRange <f_scaleRange>]
         Scale range for normalization. This has the effect of controlling 
@@ -180,7 +187,7 @@ class Z2labelmap(ChrisApp):
     TYPE                    = 'ds'
     DESCRIPTION             = 'Convert a file of per-structure z-scores to a FreeSurfer labelmap.'
     DOCUMENTATION           = 'http://wiki'
-    VERSION                 = '1.1.11'
+    VERSION                 = '2.0.0'
     ICON                    = '' # url of an icon image
     LICENSE                 = 'Opensource (MIT)'
     MAX_NUMBER_OF_WORKERS   = 1  # Override with integer value
@@ -541,6 +548,12 @@ class Z2labelmap(ChrisApp):
                             dest        = 'negColor',
                             optional    = True,
                             default     = 'B')
+        self.add_argument("-I", "--imageSet",
+                            help        = "copy a pre-calculated image set to output",
+                            type        = str,
+                            dest        = 'imageSet',
+                            optional    = True,
+                            default     = '')
         self.add_argument("-s", "--scaleRange",
                             help        = "scale range for normalization",
                             type        = float,
@@ -616,11 +629,10 @@ class Z2labelmap(ChrisApp):
             str_val = getattr(self, str_var)
             print("%20s: %s" % (str_var, str_val))
 
-    def run(self, options):
+    def internals_construct(self, options):
         """
-        Define the code to be run by this plugin app.
+        Construct some internals
         """
-
         self.options        = options
         self.d_hemiStats    = {
             'zScore':       [],
@@ -643,21 +655,6 @@ class Z2labelmap(ChrisApp):
             'default':  copy.deepcopy(self.d_core)
         }
 
-        if options.b_man:
-            self.manPage_show()
-            sys.exit(0)
-
-        if options.b_meta:
-            self.metaData_show()
-            sys.exit(0)
-
-        # pudb.set_trace()
-        if options.b_version:
-            print('Plugin Version: %s' % Z2labelmap.VERSION)
-            sys.exit(0)
-
-        copy_tree(self.options.inputdir, self.options.outputdir)
-
         self.d_parcellation['a2009s']['structureNames']     = \
                  self.a2009sStructList_define()
         self.d_parcellation['a2009s']['zScoreFile']         = '%s/%s' % \
@@ -665,7 +662,46 @@ class Z2labelmap(ChrisApp):
         self.d_parcellation['a2009s']['labelMapFile']       = '%s/%s' % \
                 (self.options.outputdir, 'aparc.annot.a2009s.ctab')
 
+    def statusInfo_check(self):
+        """
+        Perform some status checks
+        """
+        if self.options.b_man:
+            self.manPage_show()
+            sys.exit(0)
+
+        if self.options.b_meta:
+            self.metaData_show()
+            sys.exit(0)
+
+        # pudb.set_trace()
+        if self.options.b_version:
+            print('Plugin Version: %s' % Z2labelmap.VERSION)
+            sys.exit(0)
+
+    def imageCopy_check(self):
+        """
+        Check on copying image specific set.
+        """
+        if len(self.options.imageSet):
+            if os.path.isdir(self.options.imageSet):
+                print("Copying image set directory '%s' to output..." % self.options.imageSet)
+                copy_tree(self.options.imageSet, self.options.outputdir)
+            else:
+                print("Requested image set directory '%s' not found!" % self.options.imageSet)
+
+    def run(self, options):
+        """
+        Define the code to be run by this plugin app.
+        """
         b_zFileProcessed        = False
+
+        self.internals_construct(options)
+        self.statusInfo_check()
+        self.imageCopy_check()
+
+        # Copy whatever is currently in the input to the output
+        copy_tree(self.options.inputdir, self.options.outputdir)
 
         if options.b_random:
             if len(options.seed):
