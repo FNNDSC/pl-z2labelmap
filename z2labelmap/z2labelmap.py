@@ -159,7 +159,10 @@ Gstr_synopsis = """
         [--meta]
         If specified, print plugin meta data.
 
-    EXAMPLE
+    EXAMPLES
+
+        Control relative brightness and lower filter low z-scores
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
         * Assuming a file called 'zfile.csv' in the <inputDirectory>
           that ranges in z-score between 0.0 and 3.0, use the --scaleRange
@@ -167,8 +170,18 @@ Gstr_synopsis = """
           also remove the lower 80 percent of zscores (this has the effect 
           of only showing the brightest 20 percent of zscores). 
 
-        python z2labelmap.py    --scaleRange 2.0 --lowerFilter 0.8  \\
-                                --negColor B --posColor R           \\
+        python z2labelmap.py    --scaleRange 2.0 --lowerFilter 0.8      \\
+                                --negColor B --posColor R               \\
+                                in out
+
+        Generate labelmap and also copy pre-calculated image set to output
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        * Analyze a file already located at ``in/zfile.csv`` and copy 
+          pre-calculated image data
+
+        python z2labelmap.py    --negColor B --posColor R               \\
+                                --imageSet ../data/set1                 \\
                                 in out
 
 
@@ -187,7 +200,7 @@ class Z2labelmap(ChrisApp):
     TYPE                    = 'ds'
     DESCRIPTION             = 'Convert a file of per-structure z-scores to a FreeSurfer labelmap.'
     DOCUMENTATION           = 'http://wiki'
-    VERSION                 = '2.0.0'
+    VERSION                 = '2.0.1'
     ICON                    = '' # url of an icon image
     LICENSE                 = 'Opensource (MIT)'
     MAX_NUMBER_OF_WORKERS   = 1  # Override with integer value

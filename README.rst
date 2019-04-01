@@ -164,6 +164,22 @@ or without docker
 
 In this example, z-scores range between 0.0 and (+/-) 3.0.
 
+Generate labelmap and also copy pre-calculated image set to output
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Analyze a file already located at ``in/zfile.csv`` and copy pre-calculated image data
+
+.. code::
+
+    docker run --rm -v $(pwd)/in:/incoming -v $(pwd)/out:/outgoing  \
+            fnndsc/pl-z2labelmap z2labelmap.py                      \
+            --negColor B --posColor R                               \
+            --imageSet ../data/set1                                 \
+            /incoming /outgoing
+
+This assumes a file called 'zfile.csv' in the <inputDirectory> that ranges in z-score between 0.0 and 3.0, and uses the --scaleRange to reduce the apparent brightness of the map by 50 percent. Furthermore, the lower 80 percent of z-scores are removed (this has the effect of only showing the brightest 20 percent of zscores). 
+
+
 Control relative brightness and lower filter low z-scores from final labelmap
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
