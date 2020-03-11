@@ -200,7 +200,7 @@ class Z2labelmap(ChrisApp):
     TYPE                    = 'ds'
     DESCRIPTION             = 'Convert a file of per-structure z-scores to a FreeSurfer labelmap.'
     DOCUMENTATION           = 'http://wiki'
-    VERSION                 = '2.0.2'
+    VERSION                 = '2.2.0'
     ICON                    = '' # url of an icon image
     LICENSE                 = 'Opensource (MIT)'
     MAX_NUMBER_OF_WORKERS   = 1  # Override with integer value
@@ -599,21 +599,11 @@ class Z2labelmap(ChrisApp):
                             optional    = True,
                             default     = '')
 
-    def manPage_show(self):
+    def show_man_page(self):
         """
         Print some quick help.
         """
         print(Gstr_synopsis)
-
-    def metaData_show(self):
-        """
-        Print the plugin meta data
-        """
-        l_metaData  = dir(self)
-        l_classVar  = [x for x in l_metaData if x.isupper() ]
-        for str_var in l_classVar:
-            str_val = getattr(self, str_var)
-            print("%20s: %s" % (str_var, str_val))
 
     def internals_construct(self, options):
         """
@@ -648,22 +638,22 @@ class Z2labelmap(ChrisApp):
         self.d_parcellation['a2009s']['labelMapFile']       = '%s/%s' % \
                 (self.options.outputdir, 'aparc.annot.a2009s.ctab')
 
-    def statusInfo_check(self):
-        """
-        Perform some status checks
-        """
-        if self.options.b_man:
-            self.manPage_show()
-            sys.exit(0)
+    # def statusInfo_check(self):
+    #     """
+    #     Perform some status checks
+    #     """
+    #     if self.options.b_man:
+    #         self.manPage_show()
+    #         sys.exit(0)
 
-        if self.options.b_meta:
-            self.metaData_show()
-            sys.exit(0)
+    #     if self.options.b_meta:
+    #         self.metaData_show()
+    #         sys.exit(0)
 
-        # pudb.set_trace()
-        if self.options.b_version:
-            print('Plugin Version: %s' % Z2labelmap.VERSION)
-            sys.exit(0)
+    #     # pudb.set_trace()
+    #     if self.options.b_version:
+    #         print('Plugin Version: %s' % Z2labelmap.VERSION)
+    #         sys.exit(0)
 
     def imageCopy_check(self):
         """
@@ -683,7 +673,6 @@ class Z2labelmap(ChrisApp):
         b_zFileProcessed        = False
 
         self.internals_construct(options)
-        self.statusInfo_check()
         self.imageCopy_check()
 
         # Copy whatever is currently in the input to the output
