@@ -2,4 +2,3 @@ chrisapp
 pandas
 numpy
 pudb
-

@@ -200,7 +200,7 @@ class Z2labelmap(ChrisApp):
     TYPE                    = 'ds'
     DESCRIPTION             = 'Convert a file of per-structure z-scores to a FreeSurfer labelmap.'
     DOCUMENTATION           = 'http://wiki'
-    VERSION                 = '2.2.0'
+    VERSION                 = '2.4.3'
     ICON                    = '' # url of an icon image
     LICENSE                 = 'Opensource (MIT)'
     MAX_NUMBER_OF_WORKERS   = 1  # Override with integer value
@@ -315,8 +315,8 @@ class Z2labelmap(ChrisApp):
                         header = None
                     )
 
-        self.d_parcellation[astr_parcellation]['lh']['zScore'] = dframe.ix[:,1].tolist()
-        self.d_parcellation[astr_parcellation]['rh']['zScore'] = dframe.ix[:,2].tolist()
+        self.d_parcellation[astr_parcellation]['lh']['zScore'] = dframe.iloc[:, 1].tolist()
+        self.d_parcellation[astr_parcellation]['rh']['zScore'] = dframe.iloc[:, 2].tolist()
 
         b_status    = True
         return {
